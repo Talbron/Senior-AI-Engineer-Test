@@ -8,4 +8,6 @@ from lab_monitor.functions import DummyClass
 
 def test_example():
     dummy = DummyClass()
-    assert dummy.val == 1
+    assert dummy.get_val() == 1
+    dummy.set_val(val=2)
+    assert dummy.val == 2

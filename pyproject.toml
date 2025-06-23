@@ -43,7 +43,7 @@ max-line-length = 120
 exclude = [".cache", ".poetry", "venv"]
 
 [tool.pylint.MASTER]
-disable = ["E0401", "W0613", "R0902", "R0912", "R0913", "R0914", "W0511", "C0204", "R1702", "W0703", "W0107"]
+disable = ["E0401", "W0613", "R0902", "R0912", "R0913", "R0914", "W0511", "C0204", "R1702", "W0703", "W0107", "R0903"]
 exclude = [".cache", ".poetry", "venv"]
 
 [tool.pylint.FORMAT]
