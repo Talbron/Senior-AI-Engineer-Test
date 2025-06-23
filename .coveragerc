@@ -1,0 +1,21 @@
+[run]
+branch = True
+source = src/lab_monitor
+
+[paths]
+source =
+    src/lab_monitor
+    */site-packages
+
+[html]
+directory = coverage_html_report
+
+[report]
+show_missing = True
+skip_covered = True
+exclude_lines = 
+    if  __name__ == '__main__'
+    @(abc\.)?abstractmethod
+    if TYPE_CHECKING:
+    def main
+    raise NotImplementedError
