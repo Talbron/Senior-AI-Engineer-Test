@@ -5,6 +5,7 @@
 """
 from lab_monitor.functions import DummyClass
 
+
 def test_example():
     dummy = DummyClass()
     assert dummy.val == 1

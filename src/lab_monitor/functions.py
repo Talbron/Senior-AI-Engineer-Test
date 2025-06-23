@@ -4,6 +4,7 @@
     quick dummy test to check pipeline.
 """
 
+
 class DummyClass:
     """
         A dummy class to test coverarge
