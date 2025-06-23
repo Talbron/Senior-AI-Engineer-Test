@@ -123,5 +123,5 @@ class BarrelDistortionCorrector:
 
 
 if __name__ == '__main__':
-    corrector = BarrelDistortionCorrector('../samples/filling.png')  # Image path
+    corrector = BarrelDistortionCorrector('../samples/raw/cal.png')  # Image path
     corrector.run()
