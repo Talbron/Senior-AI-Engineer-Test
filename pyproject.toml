@@ -6,7 +6,7 @@ authors = [
     {name = "Matt Freeland",email = "matthew_freeland@yahoo.co.uk"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "^3.11.9"
 dependencies = [
     "pylint (>=3.3.7,<4.0.0)",
     "flake8 (>=7.3.0,<8.0.0)",
