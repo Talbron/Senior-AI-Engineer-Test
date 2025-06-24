@@ -1,0 +1,12 @@
+{
+  "name": "GroundedSAM2 Dev",
+  "context": "..",
+  "dockerFile": "../Dockerfile",
+  "runArgs": ["--gpus", "all"],
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "python.defaultInterpreterPath": "/usr/bin/python"
+  },
+  "extensions": ["ms-python.python"],
+  "mounts": ["source=${localWorkspaceFolder},target=/app,type=bind"]
+}
