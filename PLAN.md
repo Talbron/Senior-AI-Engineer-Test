@@ -141,7 +141,7 @@ class PetriDish(Entity):
 - [ ] Do experiments
 - [ ] Create pipeline
 - [ ] Write README
-- [ ] Dockerize
+- [x] Dockerize
 - [x] Test pipeline (if time)
 - [ ] Build pipeline (if time)
 - [ ] Add extras (if time)

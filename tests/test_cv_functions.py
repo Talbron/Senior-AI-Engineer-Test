@@ -22,7 +22,7 @@ from lab_monitor.cv_functions import BarrelUndistortTransform
 
 
 def test_barrel_undistort_transform_apply():
-    """        
+    """
     Tests the BarrelUndistortTransform's apply method.
     """
     # Create a dummy image (e.g. a black square with a white grid)
