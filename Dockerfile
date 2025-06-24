@@ -44,8 +44,11 @@ RUN pip install torch torchvision torchaudio --index-url https://download.pytorc
 
 # Clone and build GroundingDINO (needed for compiled ops)
 RUN git clone https://github.com/IDEA-Research/GroundingDINO.git && \
-    cd GroundingDINO && \
-    pip install -e . && \
+    cd GroundingDINO/groundingdino/models/GroundingDINO/csrc/MsDeformAttn && \
+    sed -i 's/value.type()/value.scalar_type()/g' ms_deform_attn_cuda.cu && \
+    sed -i 's/value.scalar_type().is_cuda()/value.is_cuda()/g' ms_deform_attn_cuda.cu && \
+    cd /workspaces/GroundingDINO && \
+    pip install -q -e . && \
     python setup.py build_ext --inplace
 
 # Install Segment Anything
@@ -58,4 +61,11 @@ RUN pip install opencv-python transformers
 VOLUME /weights
 
 # Run weight download script (uses /weights)
-RUN poetry run python get_weights.py
+RUN poetry lock && \
+    poetry install && \
+    poetry run python get_weights.py
+
+# Apply patch to grounding_dino, that should have worked as part of the clone
+RUN chmod +x dino_fix.sh
+
+RUN ./dino_fix.sh

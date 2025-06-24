@@ -7,37 +7,32 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-test-docs:
+  docker-ci:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11.9'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install Poetry
+      - name: Build Docker image
         run: |
-          python -m pip install --upgrade pip
-          pip install poetry
+          docker build -t my-ci-image .
 
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
-
-      - name: Run flake8 lint
-        run: poetry run flake8 src/lab_monitor tests
-
-      - name: Run pylint lint
-        run: poetry run pylint src/lab_monitor
-
-      - name: Generate docs with pdoc3
-        run: poetry run pdoc src/lab_monitor --html --output-dir docs
-
-      - name: Run tests with coverage
-        run: poetry run pytest --cov=lab_monitor --cov-report=term --cov-report=html
+      - name: Run tests inside Docker container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -w /app \
+            my-ci-image \
+            bash -c "
+              poetry run flake8 src/lab_monitor tests && \
+              poetry run pylint src/lab_monitor && \
+              poetry run pdoc src/lab_monitor --html --output-dir docs && \
+              poetry run pytest --cov=lab_monitor --cov-report=term --cov-report=html
+            "
 
       - name: Upload coverage report artifact
         if: always()

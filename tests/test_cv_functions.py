@@ -22,6 +22,9 @@ from lab_monitor.cv_functions import BarrelUndistortTransform
 
 
 def test_barrel_undistort_transform_apply():
+    """        
+    Tests the BarrelUndistortTransform's apply method.
+    """
     # Create a dummy image (e.g. a black square with a white grid)
     img = np.zeros((200, 200, 3), dtype=np.uint8)
     cv2.line(img, (50, 0), (50, 199), (255, 255, 255), 1)

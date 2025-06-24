@@ -22,11 +22,10 @@ import numpy as np
 
 class BarrelUndistortTransform:
     """
-    Applies barrel distortion correction using predefined k1 and k2 values.
-    We default to some predefined values we determined experimentally.
-    Some very rough estimates used for camera matrix
-
-    Attributes:
+        Applies barrel distortion correction using predefined k1 and k2 values.
+        We default to some predefined values we determined experimentally.
+        Some very rough estimates used for camera matrix
+    Args:
         image_shape (tuple): Shape of input frames (height, width).
         k1 (float): Radial distortion coefficient k1.
         k2 (float): Radial distortion coefficient k2.
@@ -47,8 +46,7 @@ class BarrelUndistortTransform:
 
     def apply(self, frame: np.ndarray) -> np.ndarray:
         """
-        Undistorts a given frame using stored distortion parameters.
-
+            Undistorts a given frame using stored distortion parameters.
         Args:
             frame (np.ndarray): Input distorted image/frame.
 

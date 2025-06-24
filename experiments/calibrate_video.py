@@ -19,11 +19,10 @@
 import cv2
 from tqdm import tqdm
 from lab_monitor.cv_functions import BarrelUndistortTransform
-from lab_monitor.dino_functions import DinoProcess
 
 
 video_path = "../data/AICandidateTest-FINAL.mp4"
-output_path = "../data/AICandidateTest-DETECTED.mp4"
+output_path = "../data/AICandidateTest-CORRECTED.mp4"
 
 cap = cv2.VideoCapture(video_path)
 
@@ -45,15 +44,10 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 'XVID' for .avi, 'mp4v' for .mp4
 # Initialize the video writer
 out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
-network = DinoProcess()
-
 with tqdm(total=frame_count, desc="Processing video", unit="frame") as pbar:
     while ret:
         undistorted = transform.apply(frame)
-        boxes, logits, phrases = network.process_image(undistorted)
-        annotated = network.annotate_image(undistorted, boxes, logits, phrases)
-        bgr_annotated = cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR)
-        out.write(bgr_annotated)  # Save the undistorted frame
+        out.write(undistorted)
         ret, frame = cap.read()
         pbar.update(1)
 
