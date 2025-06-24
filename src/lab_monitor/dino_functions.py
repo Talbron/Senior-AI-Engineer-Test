@@ -31,13 +31,24 @@ class DinoProcess:
     """
     def __init__(self, device="cuda" if torch.cuda.is_available() else "cpu", text_prompt: str = None):
         self.device = device
-        self.model = load_model(
-            model_config_path="/workspaces/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py",
-            model_checkpoint_path="../weights/groundingdino_swint_ogc.pth",
-            device=self.device
-        )
+        self.model = None
         self.text_prompt = text_prompt or (
             "glass bottle, blue bottle cap, glass petri dish, empty petri dish, hand, circular glass dish"
+        )
+
+    def load_model(self,
+                   model_config_path="/workspaces/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py",
+                   model_checkpoint_path="../weights/groundingdino_swint_ogc.pth"):
+        """
+            Explicitly loads the GroundingDINO model.
+        Args:
+            model_config_path (str): Path to the model configuration file.
+            model_checkpoint_path (str): Path to the model checkpoint file.
+        """
+        self.model = load_model(
+            model_config_path=model_config_path,
+            model_checkpoint_path=model_checkpoint_path,
+            device=self.device
         )
 
     def _transform(self, cv_image: np.array) -> torch.Tensor:
@@ -71,6 +82,8 @@ class DinoProcess:
         Returns:
             Tuple[np.ndarray, np.ndarray, List[str]]: Detected boxes, logits, and phrases.
         """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
         image_transformed = self._transform(cv_image)
         boxes, logits, phrases = predict(
             model=self.model,
@@ -96,3 +109,22 @@ class DinoProcess:
         annotated_frame = annotate(image_source=cv_image, boxes=boxes,
                                    logits=logits, phrases=phrases)
         return annotated_frame
+
+    GROUP_MAP = {
+        "hand": "hand",
+        "glass bottle": "bottle",
+        "blue bottle cap": "bottle cap",
+        "glass petri dish": "petri dish",
+        "empty petri dish": "petri dish",
+        "circular glass dish": "petri dish"
+    }
+
+    def map_label(self, phrase: str) -> str:
+        """
+        Maps a given phrase to a predefined group label.
+        Args:
+            phrase (str): The input phrase to map.
+        Returns:
+            str: The mapped group label or the original phrase if no mapping exists."""
+        phrase = phrase.strip().lower()
+        return self.GROUP_MAP.get(phrase, phrase)

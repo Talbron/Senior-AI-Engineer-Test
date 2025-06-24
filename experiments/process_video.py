@@ -46,6 +46,7 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 'XVID' for .avi, 'mp4v' for .mp4
 out = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
 network = DinoProcess()
+network.load_model()
 
 with tqdm(total=frame_count, desc="Processing video", unit="frame") as pbar:
     while ret:

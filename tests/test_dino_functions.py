@@ -33,20 +33,33 @@ def dummy_cv_image():
     return np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
 
 
-@patch("lab_monitor.dino_functions.load_model")
-def test_init_sets_defaults(mock_load_model):
+def test_init_sets_defaults():
     """
         Tests that DinoProcess initializes with default values.
+
+    """
+    dp = DinoProcess()
+
+    assert dp.device in ("cuda", "cpu")
+    assert dp.model is None
+    assert "glass bottle" in dp.text_prompt
+
+
+@patch("lab_monitor.dino_functions.load_model")
+def test_load_model_sets_model(mock_load_model):
+    """
+        Tests that load_model sets the model attribute correctly.
     Args:
         mock_load_model (MagicMock): Mock for the load_model function.
     """
     mock_model = MagicMock()
     mock_load_model.return_value = mock_model
-    dp = DinoProcess()
 
-    assert dp.device in ("cuda", "cpu")
+    dp = DinoProcess()
+    dp.load_model()
+
     assert dp.model == mock_model
-    assert "glass bottle" in dp.text_prompt
+    mock_load_model.assert_called_once()
 
 
 @patch("lab_monitor.dino_functions.T.Compose")
@@ -75,30 +88,33 @@ def test_transform_calls_pipeline(mock_fromarray, mock_cvtColor, mock_compose, d
     assert isinstance(transformed, torch.Tensor)
 
 
+def test_process_image_raises_if_model_not_loaded():
+    """
+        Tests that process_image raises an error if the model is not loaded.
+    """
+    dp = DinoProcess()
+    with pytest.raises(RuntimeError, match="Model not loaded"):
+        dp.process_image(cv_image=MagicMock())
+
+
 @patch("lab_monitor.dino_functions.predict")
-@patch.object(DinoProcess, "_transform")
-def test_process_image_calls_predict(mock_transform, mock_predict, dummy_cv_image):
+def test_process_image_runs_with_model(mock_predict):
     """
-        Tests that process_image calls the transform and predict methods correctly.
+        Tests that process_image calls the predict function with correct parameters.
     Args:
-        mock_transform (MagicMock): Mock for the _transform method.
         mock_predict (MagicMock): Mock for the predict function.
-        dummy_cv_image (np.ndarray): A dummy OpenCV image.
     """
-    mock_transform.return_value = torch.rand(3, 224, 224)
-    dummy_boxes = np.array([[0, 0, 10, 10]])
-    dummy_logits = np.array([0.9])
-    dummy_phrases = ["glass bottle"]
-    mock_predict.return_value = (dummy_boxes, dummy_logits, dummy_phrases)
+    mock_predict.return_value = ("boxes", "logits", ["phrase1", "phrase2"])
+    mock_model = MagicMock()
 
     dp = DinoProcess()
-    boxes, logits, phrases = dp.process_image(dummy_cv_image)
+    dp.model = mock_model
+    dummy_image = np.zeros((100, 100, 3), dtype=np.uint8)
 
-    mock_transform.assert_called_once()
+    result = dp.process_image(cv_image=dummy_image)
+
+    assert result == ("boxes", "logits", ["phrase1", "phrase2"])
     mock_predict.assert_called_once()
-    assert isinstance(boxes, np.ndarray)
-    assert isinstance(logits, np.ndarray)
-    assert isinstance(phrases, list)
 
 
 @patch("lab_monitor.dino_functions.annotate")
@@ -124,3 +140,20 @@ def test_annotate_image_calls_annotate(mock_annotate, dummy_cv_image):
         phrases=dummy_phrases
     )
     assert np.array_equal(result, dummy_cv_image)
+
+
+@pytest.mark.parametrize("input_phrase, expected_output", [
+    ("hand", "hand"),
+    ("glass bottle", "bottle"),
+    ("blue bottle cap", "bottle cap"),
+    ("glass petri dish", "petri dish"),
+    ("empty petri dish", "petri dish"),
+    ("circular glass dish", "petri dish"),
+    ("unknown item", "unknown item"),
+    ("  Hand ", "hand"),
+    ("GLASS BOTTLE", "bottle"),
+    ("Blue Bottle Cap", "bottle cap")
+])
+def test_map_label(input_phrase, expected_output):
+    dp = DinoProcess()
+    assert dp.map_label(input_phrase) == expected_output
