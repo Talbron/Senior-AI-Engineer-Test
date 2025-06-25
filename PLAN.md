@@ -138,12 +138,12 @@ class PetriDish(Entity):
 - [x] Add Boilerplate
 - [x] Add runners (if time)
 - [x] Add flake8, linting, PDOC scripts
-- [ ] Do experiments
-- [ ] Create pipeline
-- [ ] Write README
+- [x] Do experiments
+- [x] Create pipeline
+- [x] Write README
 - [x] Dockerize
 - [x] Test pipeline (if time)
-- [ ] Build pipeline (if time)
+- [x] API (if time)
 - [ ] Add extras (if time)
 
 ---
